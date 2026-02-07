@@ -1,0 +1,89 @@
+#property copyright "Copyright 2026, AI Assistant"
+#property version   "1.00"
+#property strict
+
+// --- INPUT PARAMETERS
+input string api_urls = "http://192.168.29.127:8000/api/mt5/tick,http://192.168.29.82:8000/api/mt5/tick";
+
+// --- GLOBALS
+datetime last_send = 0;
+string url_list[];
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   // Split the input string into the array once at startup
+   ushort separator = StringGetCharacter(",", 0);
+   int count = StringSplit(api_urls, separator, url_list);
+
+   Print("Initialized. Broadcasting to ", count, " URLs.");
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Send data once per second
+   if(TimeCurrent() - last_send < 1)
+      return;
+
+   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+
+   if(bid <= 0 || ask <= 0) return;
+
+   last_send = TimeCurrent();
+   int digits = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
+
+   // Prepare JSON Data
+   string json = StringFormat(
+      "{\"symbol\":\"%s\",\"bid\":%.*f,\"ask\":%.*f,\"time\":%d}",
+      _Symbol, digits, bid, digits, ask, (int)TimeCurrent()
+   );
+
+   char post[];
+   ArrayResize(post, StringLen(json));
+   StringToCharArray(json, post, 0, StringLen(json), CP_UTF8);
+
+   string headers = "Content-Type: application/json\r\nAccept: application/json\r\n";
+
+   // --- BROADCAST LOOP ---
+   for(int i = 0; i < ArraySize(url_list); i++)
+   {
+      string current_url = url_list[i];
+      StringTrimLeft(current_url);
+      StringTrimRight(current_url);
+
+      if(StringLen(current_url) == 0) continue;
+
+      char result[];
+      string result_headers;
+
+      ResetLastError();
+      // Increased timeout to 5000ms to resolve Error 1001
+      int res = WebRequest("POST", current_url, headers, 5000, post, result, result_headers);
+
+      if(res == -1)
+      {
+         int err = GetLastError();
+         Print("❌ Connection Error on ", current_url, " | Error Code: ", err);
+         if(err == 4014) Print("-> Fix: Add URL to Tools > Options > Expert Advisors");
+      }
+      else if(res == 404)
+      {
+         Print("⚠️ 404 Not Found on ", current_url, " | Check if the API path /api/mt5/tick is correct.");
+      }
+      else if(res >= 200 && res <= 299)
+      {
+         Print("✅ Success! Sent to: ", current_url, " | Status: ", res);
+      }
+      else
+      {
+         Print("❓ Server returned status: ", res, " for ", current_url);
+      }
+   }
+}
