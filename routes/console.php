@@ -12,5 +12,5 @@ Artisan::command('inspire', function () {
 
 
 Schedule::job(new ProcessMt5TicksJob)
-    ->everySecond()
+    ->everyMinute()
     ->withoutOverlapping();

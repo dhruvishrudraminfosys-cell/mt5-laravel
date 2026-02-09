@@ -94,7 +94,7 @@ class Mt5TickController extends Controller
 
             // ✅ Validate incoming data
             $validated = $request->validate([
-                'symbol' => 'required|string',
+                'symbol' => 'string',
                 'bid'    => 'required|numeric',
                 'ask'    => 'required|numeric',
                 'time'   => 'required|integer',

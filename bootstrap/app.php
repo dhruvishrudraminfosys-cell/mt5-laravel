@@ -20,8 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->job(new ProcessMt5TicksJob)
-            ->everySecond()
+        $schedule->job(new \App\Jobs\ProcessMt5TicksJob)
+            ->everyMinute()
             ->withoutOverlapping();
     })
     ->create();
