@@ -6,3 +6,8 @@ php artisan serve
 
 first mql server start
 then laravel server start
+
+
+php artisan reverb:start
+
+php artisan serve --host=192.168.29.82 --port=8000

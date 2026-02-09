@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Mt5Tick;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Events\TickUpdated;
 
 class Mt5TickController extends Controller
 {
@@ -88,7 +89,7 @@ class Mt5TickController extends Controller
     }
 
     // Multiple Entry Update Or Create
-    public function store(Request $request)
+    public function store78(Request $request)
     {
         try {
 
@@ -162,7 +163,21 @@ class Mt5TickController extends Controller
             ], 500);
         }
     }
+
+
+    public function store(Request $request)
+    {
+        $tickData = [
+            'symbol'    => $request->symbol,
+            'bid'       => (float)$request->bid,
+            'ask'       => (float)$request->ask,
+            'spread'    => round((float)$request->ask - (float)$request->bid, 5),
+            'tick_time' => date('H:i:s', $request->time), // Changed 'time' to 'tick_time' to match Event
+        ];
+
+        broadcast(new TickUpdated($tickData));
+
+        return response()->json(['status' => 'broadcasted']);
+    }
+
 }
-
-
-
