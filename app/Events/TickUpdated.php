@@ -21,16 +21,16 @@ class TickUpdated implements ShouldBroadcastNow
         $this->ticks = is_array($ticks) && isset($ticks[0]) ? $ticks : [$ticks];
 
         // Log construction
-        Log::debug('TickUpdated Event Created', [
-            'tick_count' => count($this->ticks),
-            'symbols' => array_column($this->ticks, 'symbol'),
-            'memory_usage' => round(memory_get_usage() / 1024 / 1024, 2) . 'MB'
-        ]);
+        // Log::debug('TickUpdated Event Created', [
+        //     'tick_count' => count($this->ticks),
+        //     'symbols' => array_column($this->ticks, 'symbol'),
+        //     'memory_usage' => round(memory_get_usage() / 1024 / 1024, 2) . 'MB'
+        // ]);
     }
 
     public function broadcastOn()
     {
-        Log::debug('Broadcasting on channel: market-ticks');
+        // Log::debug('Broadcasting on channel: market-ticks');
         return new Channel('market-ticks');
     }
 
