@@ -11,9 +11,11 @@
         "laravel/reverb": "^1.7",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
-        "pusher/pusher-php-server": "*"
+        "pusher/pusher-php-server": "*",
+        "stripe/stripe-php": "^19.4"
     },
     "require-dev": {
+        "deployer/deployer": "^7.5",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
